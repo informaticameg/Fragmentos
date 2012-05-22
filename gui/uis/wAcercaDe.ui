@@ -17,7 +17,7 @@
    <string>Acerca de Fragmentos</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="images/icons.qrc">
+   <iconset resource="../images/icons.qrc">
     <normaloff>:/toolbar/icon.png</normaloff>:/toolbar/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -48,7 +48,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>:/icons/logo.png</pixmap>
+         <pixmap resource="../images/icons.qrc">:/toolbar/logo.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -162,7 +162,7 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources>
-  <include location="images/icons.qrc"/>
+  <include location="../images/icons.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -75,7 +75,7 @@ def main():
     app = QtGui.QApplication(sys.argv)
 
     w = QtGui.QWidget()
-    SystemTrayIcon(QtGui.QIcon("star.png"), w)
+    SystemTrayIcon(QtGui.QIcon("gui/images/icon.png"), w)
 
     sys.exit(app.exec_())
 

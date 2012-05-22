@@ -39,7 +39,7 @@ class Main(QtGui.QMainWindow):
         uifile = os.path.join(os.path.abspath(os.path.dirname(__file__)),FILENAME)
         QtGui.QMainWindow.__init__(self)
         uic.loadUi(uifile, self)
-        self.setWindowIcon(QtGui.QIcon(':/icons/logo.png'))
+        self.setWindowIcon(QtGui.QIcon(':/toolbar/logo.png'))
         # centra la ventana en la pantalla
         self.__centerOnScreen()
 

@@ -17,8 +17,8 @@
    <string>Fragmentos</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>icon.png</normaloff>icon.png</iconset>
+   <iconset resource="../images/icons.qrc">
+    <normaloff>:/toolbar/logo.png</normaloff>:/toolbar/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_6">
