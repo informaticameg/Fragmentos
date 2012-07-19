@@ -93,7 +93,7 @@ class Main(QtGui.QMainWindow):
         self.btSptAnterior.setEnabled(False)
         self.btSptSiguiente.setEnabled(False)
         self.btMas.setVisible(False)
-
+         
 ######################
 ## Metodos de clase ##
 ######################
@@ -129,9 +129,17 @@ class Main(QtGui.QMainWindow):
         
         #obtiene la ruta de la bd segun el indice
         rutaNueva = self.SM.getPathDB(indice)
+         
+        if rutaNueva.find('|') == -1 :
+            self.SM.usecouch = False
+            argumentos = rutaNueva,
+        else:
+            # couchdb
+            self.SM.usecouch = True
+            argumentos = rutaNueva.split('|')
         
         # vuelva a crear la instancia de bd con la nueva ruta
-        self.SM.setDB(rutaNueva)
+        self.SM.setDB(*argumentos)
         
         # carga los snippets en el arbol
         self.refreshTree()
@@ -478,24 +486,23 @@ class Main(QtGui.QMainWindow):
     ### ENTRYES ###
     ###############
     
-    def on_eBusqueda_textChanged(self,cadena):
-        
+    def loadSearchResult(self):
         def cambiarColorBarra(barra, rojo = False):
             style = '''
             QLineEdit { border: 2px groove gray; border-radius: 8px; padding: 1px 2px; 
             border-top-left-radius: 8px ; border-top-right-radius: 0px solid white;
             border-bottom-right-radius: 0px ; border-bottom-left-radius: 8px; /**/}'''
             barra.setStyleSheet( style.replace('/**/','background-color: #FF6666;')) if rojo else barra.setStyleSheet( style )
-                 
-        datos = [] #@UnusedVariable
+        datos = []
+        cadena = str(self.eBusqueda.text().toUtf8())
         datos = self.SM.getLengsAndTitles(
-            str(self.__convertir_a_unicode(cadena)),
-                self.btBuscarEnFavoritos.isChecked())
-        if datos:
+            cadena, 
+            self.btBuscarEnFavoritos.isChecked()
+        )
+        if datos :
             # si hubieron resultados en la busqueda
             cambiarColorBarra(self.eBusqueda, False)
             self.mytreeview.insertarEnArbol(datos)
-            
             # si en las configuraciones este valor es true
             # el arbol se expandira al realizar una busqueda
             if self.Padre.fragmentos.ConfigsApp.expandTree == '1' :
@@ -504,10 +511,16 @@ class Main(QtGui.QMainWindow):
         else:
             cambiarColorBarra(self.eBusqueda, True)
             self.mytreeview.model.clear()
-        self.lbEstado.setText(str(len(datos))+' snippet(s) encontrados...')
+        try:
+            self.lbEstado.setText(str(len(datos))+' snippet(s) encontrados...')
+        except TypeError:
+            self.lbEstado.setText('0 snippet(s) encontrados...')
         if cadena == "":
             self.lbEstado.setText(
                 str(self.SM.getSnippetsCount()) + ' snippet(s) cargados...')
+            
+    def on_eBusqueda_textChanged(self,cadena):
+        QtCore.QTimer().singleShot(600, self.loadSearchResult)
 
     def on_eBusqueda_textEdited(self,cadena):
         posicion_cursor = self.eBusqueda.cursorPosition()

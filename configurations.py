@@ -58,10 +58,15 @@ class Configurations (object) :
         "referencestobds" : ''
         }
         
+        couchdb_values = {
+        "urls" : '',
+        "names" : ''
+        }
         # diccionario con las secciones
         self.__sections = {
         'configurations' : configurations_values,
-        'database' : database_values }
+        'database' : database_values ,
+        'couchdb' : couchdb_values}
 
     def __getValue(self, attribute):
         """ Recupera del archivo de configuracion el  
@@ -121,7 +126,13 @@ class Configurations (object) :
     def __get_references_to_bds(self):
         return self.__getValue('referencestobds')
 
-
+    # couch
+    def __get_couch_urls(self):
+        return self.__getValue('urls')
+    
+    def __get_couch_names(self):
+        return self.__getValue('names')
+    
     def __set_search_presition_tags(self, value):
         self.__setValue('searchpresitiontags',value)
 
@@ -145,10 +156,17 @@ class Configurations (object) :
     def __set_references_to_bds(self, value):
         self.__setValue('referencestobds',value)
 
-
+    # couchdb
+    def __set_couch_urls(self, value):
+        self.__setValue('urls',value)
+    
+    def __set_couch_names(self, value):
+        self.__setValue('names',value)
+        
 ######################
 ## Metodos PROPERTY ##
 ######################
+    
     
     searchPresitionTags = property(__get_search_presition_tags, __set_search_presition_tags, None, None)
     windowStateStartup = property(__get_window_state_startup, __set_window_state_startup, None, None)
@@ -157,6 +175,10 @@ class Configurations (object) :
     defaultBdName = property(__get_default_bd_name, __set_default_bd_name, None, None)
     referencesToBds = property(__get_references_to_bds, __set_references_to_bds, None, None)
 
+    # couchdb
+    couch_urls = property(__get_couch_urls, __set_couch_urls, None, None)
+    couch_names = property(__get_couch_names, __set_couch_names, None, None)
+    
 #########################
 ## Metodos de la clase ##
 #########################
@@ -214,6 +236,23 @@ class Configurations (object) :
             rutas.remove( path_reference )
             self.referencesToBds = ','.join( rutas )
         
+    def getURLsCouch(self):
+        ''' Obtiene los path's de las bases de datos couchdb ubicadas 
+        en el archivo de configuracion.'''
+        if self.couch_urls != None :
+            if self.couch_urls.strip() :
+                return self.couch_urls.strip().split(',')
+        else:
+            return []
+        
+    def getNamesCouch(self):
+        ''' Obtiene los path's de las bases de datos couchdb ubicadas 
+        en el archivo de configuracion.'''
+        if self.couch_names != None :
+            if self.couch_names.strip() :
+                return self.couch_names.strip().split(',')
+        else:
+            return []
 def main():
     pass
     

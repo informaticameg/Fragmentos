@@ -85,6 +85,17 @@ class Opciones(QtGui.QMainWindow):
     def on_btQuitarBDDefault_clicked(self):
         self.__quitarBDDefault()
         
+    @QtCore.pyqtSlot()
+    def on_btAgregarBDCouch_clicked(self):
+        url = unicode(self.leURLCouch.text().toUtf8(),'utf-8')
+        name = unicode(self.lrNombreBDCouch.text().toUtf8(),'utf-8')
+        if url and name :
+            self.__agregarBDCouch(url, name)
+
+    @QtCore.pyqtSlot()
+    def on_btQuitarBDCouch_clicked(self):
+        self.__quitarBDCouch()
+
     def closeEvent(self, event):    
         self.on_eNombreUsuario_editingFinished()
         
@@ -150,6 +161,8 @@ class Opciones(QtGui.QMainWindow):
         self.__cargarBDsDesdeCFG()
         self.__cargarComboBDsDefault()
         
+        #couchdb
+        self.__cargarBDsCouch()
     #~ 
     #~ TAB: GENERALES
     #~ 
@@ -268,3 +281,29 @@ class Opciones(QtGui.QMainWindow):
 #~ 
 #~ if __name__ == "__main__":
     #~ main()
+
+    def __agregarBDCouch(self, new_url, new_name):
+        # set the url
+        urls = self.__Config.couch_urls
+        urls = urls.split(',')
+        urls.append(new_url)
+        self.__Config.referencesToBds = ','.join(urls)
+        
+        # set the name
+        names = self.__Config.couch_names
+        names = urls.split(',')
+        names.append(new_name)
+        self.__Config.referencesToBds = ','.join(names)
+        
+    def __quitarBDCouch(self):
+        pass
+    
+    def __cargarBDsCouch(self):
+        self.lstBdsCouch.clear()
+        urls = self.__Config.getURLsCouch()
+        names = self.__Config.getNamesCouch()
+        for url, name in zip(urls, names):
+            self.lstBdsCouch.addItem(
+                "%s - %s" % (url, name))
+            
+        

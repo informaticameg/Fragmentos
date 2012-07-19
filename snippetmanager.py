@@ -22,10 +22,22 @@ from database import Database
 from snippet import Snippet
 from pathtools import PathTools
 
+from couch_support.snippetmanager import SnippetManagerCouch
 
 class SnippetManager:
     ''' Clase que hace de wrapper entre las clases
     de la logica del programa, con la clase Fragmentos'''
+
+    use_couch = False
+    
+    def is_couch(value):
+        def _is_couch(f):
+            def r(*args):
+                if args[0].usecouch :
+                    return SnippetManagerCouch.__dict__[ f.__name__ ](*args)
+                return f(*args)
+            return r
+        return _is_couch
 
     def __init__(self, DBUtils, Configs):
         
@@ -51,6 +63,7 @@ class SnippetManager:
         # tanto las del pathdefault como del cfg file
         self.__AllPathDBs = []
         self.loadAllPathDBs()
+        self.usecouch = False
         
         # trae si existe, el valor de la bd a cargar por defecto
         defaultBdName = self.__Configs.defaultBdName
@@ -71,7 +84,6 @@ class SnippetManager:
         
             # diccionario con todas las instancia de objeto Snippet
             self.__Snippets = self.getAllSnippets()
-            
             # instancia creada correctamente
             self.__estado = True                    
 
@@ -79,6 +91,7 @@ class SnippetManager:
 ## Metodos de instancia ##
 ##########################
 
+    @is_couch(use_couch)
     def agregarSnippet(self, datosSnippet):
         ''' Recibe un dicionario de los datos de lo que sera un nuevo
         snippet y lo agrega a la BD.'''
@@ -100,6 +113,7 @@ class SnippetManager:
             # el mensaje de error devuelto por bd
             return False,mensaje
 
+    @is_couch(use_couch)
     def eliminarSnippet(self, unSnippet):
         ''' Manda a eliminarSnippet de la Bd que
         borre el snippet segun su titulo y lenguaje.'''
@@ -117,13 +131,15 @@ class SnippetManager:
         else:
             return False
 
+    @is_couch(use_couch)
     def modificarSnippet(self, clave_spviejo, snippet_nuevo):
         ''' Actualiza el snippet cargado en memoria'''
         del self.__Snippets[clave_spviejo]
         self.__Snippets[
                 (snippet_nuevo.lenguaje,snippet_nuevo.titulo)
                     ] = snippet_nuevo
-
+    
+    @is_couch(use_couch)
     def newSnippet(self, tuplaSnippet):
         ''' Crea una instancia de snippet. '''
         
@@ -158,6 +174,7 @@ class SnippetManager:
 ## Metodos Get ##
 #################
 
+    @is_couch(use_couch)
     def getAllLenguajes(self):
         ''' Obtiene una lista de los lenguajes desde la bd.'''
         
@@ -174,11 +191,13 @@ class SnippetManager:
         ''' Obtiene una lista con los nombres de los archivos bds.'''
         databases_dir = self.__DBUtils.getBDsNamesDatabasesDir()
         cfg_file = self.__Configs.getDBsNamesCFGReferences()
-        return databases_dir + cfg_file
+        couch_dbs = [name + ' [CouchDB]'for name in self.__Configs.getNamesCouch()]
+        return databases_dir + cfg_file + couch_dbs
         
     def getDB(self):
         return self.__BD
     
+    @is_couch(use_couch)
     def getAllSnippets(self):
         ''' Obtiene los snippets desde la bd y carga en un diccionario
         los snippets en formato objeto Snippet().'''
@@ -209,6 +228,7 @@ class SnippetManager:
         
         return self.__AllPathDBs.index(bdName)
         
+    @is_couch(use_couch)
     def getLengsAndTitles(self,consulta=None, favorito = None):
         ''' Obtiene los snippets por lenguajes desde la bd.'''
         #~ tagsPresicion = bool(self.__DBUtils.configs.searchPresitionTags)
@@ -231,7 +251,8 @@ class SnippetManager:
             self.setSnippetActual(snippet)
             print 'getSnippet Error: ',msg
         return snippet
-
+    
+    @is_couch(use_couch)
     def getSnippetsCount(self):
         ''' Devuelve un entero con la cantidad de snippets cargados en la BD.'''
         return self.__BD.getSnippetsCount()
@@ -246,12 +267,15 @@ class SnippetManager:
 
     def getPathDB(self, index):
         ''' Recupera de la lista de bds la ruta en el indice especificado.'''
-        return self.__AllPathDBs[index]
-
+        path = self.__AllPathDBs[index]
+        self.use_couch = True if path.find('|') != -1 else False
+        return path
+    
 #################
 ## Metodos Set ##
 #################
 
+    @is_couch(use_couch)
     def setDB(self, pathBD):
         '''Crea una instancia de BD'''
         self.__BD = Database(pathBD)
@@ -269,7 +293,15 @@ class SnippetManager:
         databases_dir = self.__DBUtils.getBDsInDatabasesDir()
         #TODO: implementar estooo
         databases_cfg = self.__Configs.getDBsInCFGReferences()
+        
+        couch_urls = self.__Configs.getURLsCouch()
+        couch_names = self.__Configs.getNamesCouch()
+        couch_dbs = [url + '|' + name for url, name in zip(couch_urls, couch_names)]
         if databases_cfg :
             self.__AllPathDBs = databases_dir + databases_cfg
         else:
             self.__AllPathDBs = databases_dir
+        
+        if couch_dbs :
+            self.__AllPathDBs += couch_dbs
+            
