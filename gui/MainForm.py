@@ -76,9 +76,9 @@ class Main(QtGui.QMainWindow):
         self.historialSnippets = [[],0]
 
         # establece el trayicon
-        self.Padre.setTrayIcon(self)        
+        self.Padre.setTrayIcon(self)
         
-        self.refreshTree()
+        #self.refreshTree()
 
         # carga las bds en el combo
         self.loadBDsInCombo()
@@ -93,6 +93,7 @@ class Main(QtGui.QMainWindow):
         self.btSptAnterior.setEnabled(False)
         self.btSptSiguiente.setEnabled(False)
         self.btMas.setVisible(False)
+        self.cbBD.setCurrentIndex(-1)
          
 ######################
 ## Metodos de clase ##
@@ -139,7 +140,7 @@ class Main(QtGui.QMainWindow):
             argumentos = rutaNueva.split('|')
         
         # vuelva a crear la instancia de bd con la nueva ruta
-        self.SM.setDB(*argumentos)
+        self.Padre.setSM(*argumentos)
         
         # carga los snippets en el arbol
         self.refreshTree()
@@ -147,16 +148,16 @@ class Main(QtGui.QMainWindow):
                 
     def loadBDsInCombo(self):
         ''' '''         
-        if self.SM.getDB() :
-            # recarga la lista de paths a bds
-            self.SM.loadAllPathDBs()
-            
-            # limpia las items insertados 
-            self.cbBD.clear()  
-             
-            #  obtiene los nombres de las bds          
-            bds = self.SM.getBDNames()
-            if bds : map(self.cbBD.addItem, bds)
+        #if self.SM.getDB() :
+        # recarga la lista de paths a bds
+        self.SM.loadAllPathDBs()
+        
+        # limpia las items insertados 
+        self.cbBD.clear()  
+         
+        #  obtiene los nombres de las bds
+        bds = self.SM.getBDNames()
+        if bds : map(self.cbBD.addItem, bds)
             
     def __centerOnScreen (self):
         """Centers the window on the screen."""
@@ -368,15 +369,10 @@ class Main(QtGui.QMainWindow):
     def refreshTree(self):
         """ A partir de la instancia actual de SM,
         refresca el arbol cargando nuevamente los snippets. """
-                
+        self.SM = self.Padre.SM
         lengs_and_titles = self.SM.getLengsAndTitles()
         
-        # 
         self.mytreeview.insertarEnArbol(lengs_and_titles)
-        
-        # intancia el hilo que se encargara de refrescar el arbol 
-        #~ treeview = TreeViewThread(self, lengs_and_titles)        
-        #~ treeview.start()
         
         self.lbEstado.setText(
             str(self.SM.getSnippetsCount()) + ' snippet(s) cargados.')
@@ -520,7 +516,7 @@ class Main(QtGui.QMainWindow):
                 str(self.SM.getSnippetsCount()) + ' snippet(s) cargados...')
             
     def on_eBusqueda_textChanged(self,cadena):
-        QtCore.QTimer().singleShot(600, self.loadSearchResult)
+        QtCore.QTimer().singleShot(300, self.loadSearchResult)
 
     def on_eBusqueda_textEdited(self,cadena):
         posicion_cursor = self.eBusqueda.cursorPosition()

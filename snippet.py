@@ -24,7 +24,7 @@ from database.sqlite import sqlite
 class Snippet (object):
     ''' Clase que representa el molde de un snippet. '''
     
-    def __init__(self,datosSnippet=None,dbReference=None):
+    def __init__(self,datosSnippet=None):
         u""" Constructor de la clase. donde:
         datosSnippet, es un objeto de tipo diccionario.
         dbReference, referencia a la instancia actual de la base de datos. """
@@ -40,8 +40,6 @@ class Snippet (object):
             self.__referencias = datosSnippet['reference']
             self.__fecha_modificacion = datosSnippet['modified']
             self.__uploader = datosSnippet['uploader']
-        if dbReference is not None:
-            self.__DB = dbReference
     
 #################
 ## Metodos Get ##
@@ -81,65 +79,37 @@ class Snippet (object):
 #################
 
     def __setTitulo(self,titulo):
-        print 'entrando a actualiuzar titulo...'
-        self.__actualizarCampo('title',titulo)
         self.__titulo = titulo
 
     def __setLenguaje(self,lenguaje):
-        self.__actualizarCampo('language',lenguaje)
         self.__lenguaje = lenguaje
         
     def __setCodigo(self,codigo):
-        self.__actualizarCampo('contens',codigo)
         self.__codigo = codigo
         
     def __setTags(self,tags):
-        self.__actualizarCampo('tags',tags)
         self.__tags = tags
         
     def __setDescripcion(self,descripcion):
-        self.__actualizarCampo('description',descripcion)
         self.__descripcion = descripcion
 
     def __setFechaCreacion(self,fcreacion):
-        self.__actualizarCampo('creation',fcreacion)
         self.__fecha_creacion = fcreacion
 
     def __setReferencias(self,referencias):
-        self.__actualizarCampo('reference',referencias)
         self.__referencias = referencias
 
     def __setFavorito(self,favorito):
-        self.__actualizarCampo('starred',favorito)
         self.__favorito = favorito
 
     def __setFechaModificacion(self,fmodificacion):
-        self.__actualizarCampo('modified','"'+fmodificacion+'"')
         self.__fecha_modificacion = fmodificacion
 
     def __setUploader(self,uploader):
-        self.__actualizarCampo('uploader',uploader)
         self.__uploader = uploader
 
     def setDB(self,dbReference):
         self.__DB = dbReference
-
-    def __actualizarCampo(self,campo,valorNuevo):
-        ''' Recibe el campo y valor nuevo y edita ese campo en la
-        base de datos, correspondiente a este Snippet. '''
-        
-        try:
-            bd = sqlite(self.__DB.getPathBD())
-            consulta = """UPDATE snippet 
-                SET "%s" = ? 
-                WHERE title = ? 
-                AND language = ?""" % campo
-                
-            return bd.realizarNoConsulta(consulta, 
-                (valorNuevo, self.titulo, self.lenguaje))
-        except Exception, msg:
-            print 'actualizarCampo: ',str(msg)
-
 
 ################
 ## Properties ##

@@ -106,13 +106,13 @@ class Database:
     def agregarSnippet(self, datosSnippet):
         u''' Agrega un nuevo Snippet a la base de datos. 
         datosSnippet = diccionario con los datos del snippet a agregar.'''
-#        try:
-        print self.bd.__dict__
-        self.bd.save(datosSnippet)
-        return True, ''
-#        except Exception, msg:
-#            return False, str(msg)
-        
+        try:
+            from uuid import uuid4
+            doc_id = uuid4().hex 
+            self.bd[doc_id] = datosSnippet 
+            return True, ''
+        except Exception, msg:
+            return False, str(msg)
 
     def eliminarSnippet(self,titulo,lenguaje):
         u''' Elimina un Snippet de la bd.'''
@@ -127,6 +127,12 @@ class Database:
         except Exception, msg:
             print 'eliminarSnippet: ',msg
             return False
+        
+    def modificarSnippet(self, snippet_viejo, snippet_nuevo):
+        
+        self.eliminarSnippet(snippet_viejo['titulo'], snippet_viejo['lenguaje'])
+        print  snippet_nuevo
+        return self.agregarSnippet(snippet_nuevo)
         
 ######################
 # METODOS AUXILIARES #

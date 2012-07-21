@@ -125,6 +125,35 @@ class Database:
             print 'eliminarSnippet: ',msg
             return False
 
+    def modificarSnippet(self, snippet_viejo, snippet_nuevo):
+        consulta = """UPDATE snippet 
+            SET title = ?,
+                language = ?,
+                tags = ?,
+                contens = ?,
+                description = ?,
+                reference = ?,
+                modified = ?,
+                uploader = ?,
+                starred = ?
+            WHERE title = ? 
+            AND language = ?""" 
+        return self.bd.realizarNoConsulta(consulta, 
+                (
+                 snippet_nuevo['title'],
+                 snippet_nuevo['language'],
+                 snippet_nuevo['tags'],
+                 snippet_nuevo['contens'],
+                 snippet_nuevo['description'],
+                 snippet_nuevo['reference'],
+                 snippet_nuevo['modified'],
+                 snippet_nuevo['uploader'],
+                 snippet_nuevo['starred'],
+                 
+                 snippet_viejo['titulo'],
+                 snippet_viejo['lenguaje']
+                 ))
+        
 ######################
 # METODOS AUXILIARES #
 ######################

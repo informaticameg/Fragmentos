@@ -264,40 +264,22 @@ class agregarSnippet(QtGui.QMainWindow):
             datosSnippet = self.__leerDatosDeLosCampos()
             # obtiene el snippet actual
             snippetActual = self.SM.getSnippetActual()
-            
-            lenguaje_viejo =  snippetActual.lenguaje 
-            titulo_viejo = snippetActual.titulo
 
-            # pregunta por cada uno de los campos del snippet
-            # si ha havido algun cambio, y en caso afirmativo
-            # se setean los valores
-            if datosSnippet["title"] != snippetActual.titulo :
-                snippetActual.titulo = datosSnippet["title"]
-            if datosSnippet["language"] != snippetActual.lenguaje :
-                snippetActual.lenguaje = datosSnippet["language"]
-            if datosSnippet["tags"] != snippetActual.tags :
-                snippetActual.tags = datosSnippet["tags"]
-            if datosSnippet["contens"] != snippetActual.codigo :
-                snippetActual.codigo = datosSnippet["contens"]
-            if datosSnippet["description"] != snippetActual.descripcion :
-                snippetActual.descripcion = datosSnippet["description"]
-            if datosSnippet["reference"] != snippetActual.referencias :
-                snippetActual.referencias = datosSnippet["reference"]
-            if datosSnippet["uploader"] != snippetActual.uploader :
-                snippetActual.uploader = datosSnippet["uploader"]
-            if datosSnippet["starred"] != snippetActual.favorito :
-                snippetActual.favorito = datosSnippet["starred"]
-            
             # como esto es una modificacion, obtiene la fecha del sistema
             # y guarda esta fecha en la campo de modificacion
             from datetime import datetime
-            fecha_Modificacion = unicode(datetime.today().strftime('%d/%m/%Y %H:%M:%S'))
-            snippetActual.fechaModificacion = fecha_Modificacion
+            datosSnippet['modified'] = unicode(datetime.today().strftime('%d/%m/%Y %H:%M:%S'))
             
             self.__cleanFields()
             
             # actualiza el snippet en RAM
-            self.SM.modificarSnippet((lenguaje_viejo,titulo_viejo),snippetActual)
+            self.SM.modificarSnippet(
+                    (
+                     snippetActual.lenguaje,
+                     snippetActual.titulo
+                     ),
+                    datosSnippet
+            )
             
             # refresca el arbol en la interfaz principal
             self.Padre.refreshTreeMainWindow()

@@ -18,11 +18,14 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
-from dbutils import DBUtils
 from gui import GUI
-from snippetmanager import SnippetManager
-from configurations import Configurations
 from pastebin import Pastebin
+from couch_support.snippetmanager import SnippetManagerCouch
+from snippetmanager import SnippetManager
+from sm_base import SnippetManagerBase
+from configurations import Configurations
+from dbutils import DBUtils
+
 
 class Fragmentos :
     ''' Clase que hace de puente entre la logica del programa con las interfaces graficas. '''
@@ -31,8 +34,19 @@ class Fragmentos :
         self.BDU = DBUtils()
         self.ConfigsApp = Configurations()
         self.Pastebin = Pastebin()
-        self.SM = SnippetManager(self.BDU, self.ConfigsApp)
+        #self.SM = SnippetManager(self.BDU, self.ConfigsApp)
+        self.SM = SnippetManagerBase()
         self.GUI = GUI(self)
+        
+    def getSM(self):
+        pass
+    
+    def setSM(self, path, databasename = None):
+        if not databasename :
+            self.SM = SnippetManager(path)
+        else:
+            self.SM = SnippetManagerCouch(path, databasename)
+        return self.SM
         
 def main():
     Fragmentos()

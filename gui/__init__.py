@@ -45,8 +45,9 @@ class GUI(DObject):
         # iniciar el programa, este metodo devolvera False
         # y donde se creara una bd temporal 
         # hasta que este terminado el Wizard
-        if not self.SM.getInstanceState() :
-            self.__createBDTemporary()
+        
+        #if not self.SM.getInstanceState() :
+        #    self.__createBDTemporary()
             
         app = QtGui.QApplication(sys.argv)
         self.clipboard = app.clipboard()
@@ -155,7 +156,13 @@ class GUI(DObject):
         ruta = pt.getPathDatabasesDir() + "MySourceCode.db"
         self.fragmentos.BDU.newDataBase(ruta)
         
-        self.SM.setDB(ruta)
+        self.setSM(ruta)
+        
+    def setSM(self, path, db_name = None):
+        try:
+            self.SM = self.fragmentos.setSM(path, db_name)
+        except Exception:
+            QtGui.QMessageBox.critical(None ,"","Recurso no disponible: %s - %s" % (path,db_name))
         
 def main():
     GUI()

@@ -18,14 +18,3 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
-#class Couch :
-
-#def is_couch(value):
-#    def _is_couch(f):
-#        def r(*args):
-#            print args, value
-#            if value :
-#                return SnippetManager.__dict__[ f.__name__ ](*args)
-#            return f(*args)
-#        return r
-#    return _is_couch

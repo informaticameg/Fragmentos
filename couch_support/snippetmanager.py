@@ -18,58 +18,22 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
-from database import Database
 from snippet import Snippet
+from sm_base import SnippetManagerBase
+from couch_support.database import Database
 
 
-class SnippetManagerCouch:
+class SnippetManagerCouch (SnippetManagerBase):
     ''' Clase que hace de wrapper entre las clases
     de la logica del programa, con la clase Fragmentos'''
 
-    def __init__(self):
+    def __init__(self, path, db_name):
+        SnippetManagerBase.__init__(self)
+        self.loadAllPathDBs()
         
-        # class instances
-        
-        # private instances
-        self.__BD = None
-        # diccionario con todas las instancia de objeto Snippet
-        self.__Snippets = None
-        # objeto snippet mostrado actualmente en GUI
-        self.__SnippetActual = None # Snippet
-        
-        # esta variable, se utilizara para saber si la instancia de 
-        # snippetmanager se creo correctamente con una bd determinada
-        # o se creo vacia, indicando que no se puede realizar ninguna
-        # operacion sobre la aplicacion 
-        self.__estado = False
-        
-        # lista con las rutas de las base de datos
-        # tanto las del pathdefault como del cfg file
-        self.__AllPathDBs = []
-#        self.loadAllPathDBs()
-#        
-#        # trae si existe, el valor de la bd a cargar por defecto
-#        defaultBdName = self.__Configs.defaultBdName
-#        if defaultBdName :          
-#            # obtiene el indice de la ruta de la bd a cargarce 
-#            pathBD = self.getPathBD(
-#                                self.getIndexBdName(defaultBdName))
-#            # crea la instancia de el catalogo en cuestion 
-#            self.__BD = Database(pathBD)
-#            
-#            # instancia creada correctamente
-#            self.__estado = True
-#            
-#        elif self.__AllPathDBs:
-#            # sino, se carga la primer bd encontrada en la lista de bds
-#            self.__BD = Database(
-#                        self.getPathDB(0))
-#        
-#            # diccionario con todas las instancia de objeto Snippet
-#            self.__Snippets = self.getAllSnippets()
-#            
-#            # instancia creada correctamente
-#            self.__estado = True                    
+        self._BD = Database(path, db_name)
+        # se vuelven a reobtener los snippets desde esta nueva bd        
+        self._Snippets = self.getAllSnippets()
 
 ##########################
 ## Metodos de instancia ##
@@ -82,12 +46,12 @@ class SnippetManagerCouch:
         # llama al metodo de bd para agregar un snippet, devolviendo
         # el resultado de la operacion como boolean y en caso de error, 
         # el mensaje del error.
-        resultado, mensaje = self.__BD.agregarSnippet(datosSnippet)
+        resultado, mensaje = self._BD.agregarSnippet(datosSnippet)
         if resultado:
             # crea una instancia del nuevo snippet
-            newSnippet = Snippet(datosSnippet, None)
+            newSnippet = Snippet(datosSnippet)
             # agrega el nuevo snippet a los ya existentes
-            self.__addNewSnippetToCollection(newSnippet)
+            self._addNewSnippetToCollection(newSnippet)
             # retorna que la operacion fue exitosa, 
             #  y ningun mensaje de error
             return True, None
@@ -102,23 +66,29 @@ class SnippetManagerCouch:
         
         # llama al metodo de bd para eliminar un snippet
         # y devuelve un booleano con el resultado de la operacion.
-        if self.__BD.eliminarSnippet(
+        if self._BD.eliminarSnippet(
             unSnippet.titulo, unSnippet.lenguaje):
                 # quita del diccionario el snippet
-                self.__Snippets.pop((unSnippet.lenguaje,
+                self._Snippets.pop((unSnippet.lenguaje,
                                         unSnippet.titulo))
                 # establece como actual snippet a None
-                self.__SnippetActual = None
+                self._SnippetActual = None
                 return True
         else:
             return False
 
     def modificarSnippet(self, clave_spviejo, snippet_nuevo):
         ''' Actualiza el snippet cargado en memoria'''
-        del self.__Snippets[clave_spviejo]
-        self.__Snippets[
-                (snippet_nuevo.lenguaje,snippet_nuevo.titulo)
-                    ] = snippet_nuevo
+        snippet =  self._Snippets[clave_spviejo].__dict__
+        del self._Snippets[clave_spviejo]
+        self._Snippets[
+                (snippet_nuevo['language'],snippet_nuevo['title'])
+                    ] = Snippet(snippet_nuevo)
+        snippet_viejo = {}
+        for campo in snippet :
+            snippet_viejo[ campo.split('__')[1] ] = snippet[campo]
+            
+        return self._BD.modificarSnippet(snippet_viejo, snippet_nuevo)
 
     def newSnippet(self, spt):
         ''' Crea una instancia de snippet. '''
@@ -132,8 +102,8 @@ class SnippetManagerCouch:
             'reference':spt['reference'],
             'modified':spt['modified'],
             'uploader':spt['uploader'],
-            'starred':spt['starred']},
-             None)
+            'starred':spt['starred']}
+             )
             
         # tupla que sera de clave en el diccionario de los snippets
         clave = (spt['language'],spt['title'])
@@ -147,7 +117,7 @@ class SnippetManagerCouch:
         ''' Obtiene una lista de los lenguajes desde la bd.'''
         
         # obtiene desde la actual instancia de bd los lenguajes existentes 
-        lenguajes = self.__BD.getLenguajes()
+        lenguajes = self._BD.getLenguajes()
         lenguajes.sort()
         return lenguajes
     
@@ -155,32 +125,26 @@ class SnippetManagerCouch:
         ''' Obtiene los snippets desde la bd y carga en un diccionario
         los snippets en formato objeto Snippet().'''
         
-        all = self.__BD.getAllSnippets()
+        all = self._BD.getAllSnippets()
         return dict([self.newSnippet(snippet) for snippet in all])
 
     def getLengsAndTitles(self,consulta=None, favorito = None):
         ''' Obtiene los snippets por lenguajes desde la bd.'''
         #~ tagsPresicion = bool(self.__DBUtils.configs.searchPresitionTags)
         tagsPresicion = False
-        return self.__BD.getLengAndTitles(consulta, favorito, tagsPresicion)
+        return self._BD.getLengAndTitles(consulta, favorito, tagsPresicion)
 
     def getSnippetsCount(self):
         ''' Devuelve un entero con la cantidad de snippets cargados en la BD.'''
-        return self.__BD.getSnippetsCount()
+        return self._BD.getSnippetsCount()
 
     def getPathDB(self, index):
         ''' Recupera de la lista de bds la ruta en el indice especificado.'''
-        return self.__AllPathDBs[index]
+        return self._AllPathDBs[index]
 
 #################
 ## Metodos Set ##
 #################
-
-    def setDB(self, pathBD, name):
-        '''Crea una instancia de BD'''
-        self.__BD = Database(pathBD,name)
-        # se vuelven a reobtener los snippets desde esta nueva bd        
-        self.__Snippets = self.getAllSnippets()
 
 #if __name__ == '__main__':
 #    s = SnippetManager()
