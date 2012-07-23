@@ -82,7 +82,7 @@ class Configurations (object) :
             # obtiene el valor desde el cfg
             return self.config.get(section, attribute)            
         except ConfigParser.NoSectionError, msg:
-            print 'No existe la seccion <',section,'>'
+            #print 'No existe la seccion <',section,'>'
             return None
     
     def __setValue(self, attribute, value):
@@ -241,16 +241,16 @@ class Configurations (object) :
         en el archivo de configuracion.'''
         if self.couch_urls != None :
             if self.couch_urls.strip() :
-                return self.couch_urls.strip().split(',')
+                return [element for element in self.couch_urls.strip().split(',') if element != ''] 
         else:
             return []
         
     def getNamesCouch(self):
         ''' Obtiene los path's de las bases de datos couchdb ubicadas 
         en el archivo de configuracion.'''
-        if self.couch_names != None :
+        if self.couch_names != '' :
             if self.couch_names.strip() :
-                return self.couch_names.strip().split(',')
+                return [element for element in self.couch_names.strip().split(',') if element != '']
         else:
             return []
 def main():

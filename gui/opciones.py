@@ -287,13 +287,14 @@ class Opciones(QtGui.QMainWindow):
         urls = self.__Config.couch_urls
         urls = urls.split(',')
         urls.append(new_url)
-        self.__Config.referencesToBds = ','.join(urls)
+        self.__Config.couch_urls = ','.join(urls)
         
         # set the name
         names = self.__Config.couch_names
-        names = urls.split(',')
+        names = names.split(',')
         names.append(new_name)
-        self.__Config.referencesToBds = ','.join(names)
+        self.__Config.couch_names = ','.join(names)
+        self.__cargarBDsCouch()
         
     def __quitarBDCouch(self):
         pass
@@ -302,8 +303,10 @@ class Opciones(QtGui.QMainWindow):
         self.lstBdsCouch.clear()
         urls = self.__Config.getURLsCouch()
         names = self.__Config.getNamesCouch()
-        for url, name in zip(urls, names):
-            self.lstBdsCouch.addItem(
-                "%s - %s" % (url, name))
+        if urls and names :
+            for url, name in zip(urls, names):
+                if url != '' and name != '' :
+                    self.lstBdsCouch.addItem(
+                        "%s - %s" % (url, name))
             
         

@@ -108,7 +108,8 @@ class Database:
         datosSnippet = diccionario con los datos del snippet a agregar.'''
         try:
             from uuid import uuid4
-            doc_id = uuid4().hex 
+            doc_id = uuid4().hex
+            datosSnippet['doc_type'] = 'snippet'
             self.bd[doc_id] = datosSnippet 
             return True, ''
         except Exception, msg:
