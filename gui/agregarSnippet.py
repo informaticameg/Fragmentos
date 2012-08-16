@@ -138,8 +138,7 @@ class agregarSnippet(QtGui.QMainWindow):
         # le pide al widget de codigo que le devuelva los lenguajes
         # disponibles y los carga en el combo de lenguajes
         lenguajes = self.widgetcodigo.getLanguages()
-        for lenguaje in lenguajes:
-            self.cbLenguajes.addItem(lenguaje)
+        [self.cbLenguajes.addItem(lenguaje) for lenguaje in lenguajes]
             
     def __centerOnScreen(self):
         u"""Centers the window on the screen."""

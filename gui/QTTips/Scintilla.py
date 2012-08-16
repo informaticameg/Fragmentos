@@ -80,14 +80,17 @@ class Scintilla:
         
         #
         self.__equivalentes = {
-        'C++':'CPP',
-        'Css':'CSS',
-        'C':'CPP',
-        'C#':'CSharp',
-        'Html':'HTML',
-        'MsSql':'SQL',
-        'Sql':'SQL',
-        'Xml':'XML'
+            'C++':'CPP',
+            'Css':'CSS',
+            'C':'CPP',
+            'C#':'CSharp',
+            'Html':'HTML',
+            'MsSql':'SQL',
+            'Sql':'SQL',
+            'Xml':'XML',
+            'CoffeScript':'Python',
+            'VB':'Custom',
+            'VB6':'Custom',
         }
         
     def getLanguages(self):
@@ -96,12 +99,13 @@ class Scintilla:
         import PyQt4.Qsci
         langs = [i for i in dir(PyQt4.Qsci) if i.startswith('QsciLexer')]
         langs = langs[1:]
-        lenguajes = []
-        for lang in langs:
-            lenguajes.append(lang[9:])
-        return lenguajes
-        
-        
+        langs = [lang[9:] for lang in langs]
+        langs += self.__equivalentes.keys()
+        langs.sort()
+        for leng in ['CPP','CSharp'] :
+            langs.remove(leng)
+        return langs
+
     def getCode(self):
         ''' Devulve el codigo convertido en utf-8/unicode. '''
         return unicode(self.__editor.text().toUtf8(),'utf-8')
