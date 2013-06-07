@@ -118,7 +118,7 @@ class Database:
     def eliminarSnippet(self,titulo,lenguaje):
         u''' Elimina un Snippet de la bd.'''
 
-        condiciones = ['title = "{0}"'.format(titulo), 'language = "{1}"'.format(lenguaje)]
+        condiciones = ['title = "%s"' % titulo, 'language = "%s"' % lenguaje]
         try:
             return self.bd.realizarBaja("snippet", condiciones)
         except Exception, msg:

@@ -30,7 +30,7 @@ try:
 except ImportError:
     from estafador import Vacia as DObject
     import estafador as servicio
-
+from gui.images import icons_rc
 
 class GUI(DObject):
     ''' Clase encargada de administrar y gestionar todas las ventanas
@@ -86,7 +86,7 @@ class GUI(DObject):
         self.window.loadBDsInCombo()
 
     def setTrayIcon(self, mainforminstance):
-        icon = QtGui.QIcon(':/icons/logo.png')
+        icon = QtGui.QIcon(':/toolbar/icon.png')
         self.trayIcon = TrayIcon.SystemTrayIcon(icon, mainforminstance)
         self.trayIcon.show()
 

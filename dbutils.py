@@ -133,7 +133,6 @@ class DBUtils:
         
     def newDataBase(self, pathNewBD):
         ''' Crea una nueva base de datos Fragmentos. '''
-        
         # se fija que la bd ya no exista anteriormente
         if not os.path.exists(pathNewBD):
             # crea la conexion para el path asignado
