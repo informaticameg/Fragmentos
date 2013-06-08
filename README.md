@@ -4,7 +4,7 @@ Fragmentos
 // Simple snippet manager //
 
 ## That is fragments?
-In a cataloguer and organizer of source code, which allows store your snippets to access them when needed.
+Is a cataloguer and organizer of source code, which allows store your snippets to access them when needed.
 
 Their slogan is: "write it once, find it forever."
      
@@ -21,8 +21,8 @@ How to install
     Run the setup, and ready.
 - Ubuntu:
     http://db.tt/OwXV9id
-    Unzip the .tar.gz, run <install_dependences.sh> 
-    and finally run the program with <RUN_fragmentos.sh>.
+    Unzip the .tar.gz, run "install_dependences.sh"
+    and finally run the program with "RUN_fragmentos.sh".
         
 Licence
 -----------
