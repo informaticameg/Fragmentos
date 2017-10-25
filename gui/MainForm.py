@@ -191,6 +191,7 @@ class Main(QtGui.QMainWindow):
         menubusqueda.addAction("'n=' Por Fecha creacion", lambda : self.__cargarCriterioBusquedaEnBarra('n'),QtGui.QKeySequence("Alt+N"))
         menubusqueda.addAction("'m=' Por Fecha modificacion", lambda : self.__cargarCriterioBusquedaEnBarra('m'),QtGui.QKeySequence("Alt+M"))
         menubusqueda.addAction("'a=' Por Autor", lambda : self.__cargarCriterioBusquedaEnBarra('a'),QtGui.QKeySequence("Alt+A"))
+        menubusqueda.addAction("'c=' Por Contenido", lambda : self.__cargarCriterioBusquedaEnBarra('c'),QtGui.QKeySequence("Alt+C"))
 
         menu.addSeparator()
 
