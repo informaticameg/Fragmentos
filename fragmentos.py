@@ -20,7 +20,6 @@
 
 from gui import GUI
 from pastebin import Pastebin
-from couch_support.snippetmanager import SnippetManagerCouch
 from snippetmanager import SnippetManager
 from sm_base import SnippetManagerBase
 from configurations import Configurations
@@ -29,7 +28,7 @@ from dbutils import DBUtils
 
 class Fragmentos :
     ''' Clase que hace de puente entre la logica del programa con las interfaces graficas. '''
-    
+
     def __init__(self) :
         self.BDU = DBUtils()
         self.ConfigsApp = Configurations()
@@ -37,17 +36,13 @@ class Fragmentos :
         #self.SM = SnippetManager(self.BDU, self.ConfigsApp)
         self.SM = SnippetManagerBase()
         self.GUI = GUI(self)
-        
+
     def getSM(self):
         pass
-    
+
     def setSM(self, path, databasename = None):
-        if not databasename :
-            self.SM = SnippetManager(path)
-        else:
-            self.SM = SnippetManagerCouch(path, databasename)
-        return self.SM
-        
+        return SnippetManager(path)
+
 def main():
     Fragmentos()
 

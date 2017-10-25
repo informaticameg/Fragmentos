@@ -36,186 +36,173 @@ class Opciones(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         uic.loadUi(uifile, self)
         self.setWindowIcon(QtGui.QIcon(':/toolbar/gear32.png'))
-        
-        # centra la ventana 
+
+        # centra la ventana
         self.__centerOnScreen()
-        
+
         # instancias desde la clase fragmentos
         self.__Config = configs
         self.__DBU = dbutils
         self.__PT = PathTools()
         self.__Padre = parent
-        
-        # usado para saber si hay que refrescar el combo 
+
+        # usado para saber si hay que refrescar el combo
         # de bds de la interfaz principal, en caso
         # de que se haya agregado alguna
         self.__countBdsIsChanged = False
-        # 
+        #
         self.__cargarValoresEnGUI()
 
         self.tabWidget.setCurrentIndex(0)
-        
+
         self.cbBDsCargaInicio.setEnabled(False)
-               
+
 ########################
 ## Metodos de Eventos ##
 ########################
 
-    #~ 
+    #~
     #~ BOTONES GENERALES
-    #~ 
-    
+    #~
+
     @QtCore.pyqtSlot()
     def on_btAgregarBDReferencia_clicked(self):
-        self.__agregarBDReferencia()            
-        
+        self.__agregarBDReferencia()
+
     @QtCore.pyqtSlot()
     def on_btQuitarBDReferencia_clicked(self):
         self.__quitarBDReferencia()
-        
+
     @QtCore.pyqtSlot()
     def on_btAceptar_clicked(self):
         pass
-        
+
     @QtCore.pyqtSlot()
     def on_btAgregarBDDefault_clicked(self):
-        self.__agregarBDDefault()        
-    
+        self.__agregarBDDefault()
+
     @QtCore.pyqtSlot()
     def on_btQuitarBDDefault_clicked(self):
         self.__quitarBDDefault()
-        
-    @QtCore.pyqtSlot()
-    def on_btAgregarBDCouch_clicked(self):
-        url = unicode(self.leURLCouch.text().toUtf8(),'utf-8')
-        name = unicode(self.lrNombreBDCouch.text().toUtf8(),'utf-8')
-        if url and name :
-            self.__agregarBDCouch(url, name)
 
-    @QtCore.pyqtSlot()
-    def on_btQuitarBDCouch_clicked(self):
-        self.__quitarBDCouch()
-
-    def closeEvent(self, event):    
+    def closeEvent(self, event):
         self.on_eNombreUsuario_editingFinished()
-        
-    #~ 
+
+    #~
     #~ TAB: GENERALES
-    #~ 
-    
+    #~
+
     @QtCore.pyqtSlot(bool)
-    def on_cbxBuscarTags_clicked(self, valor):        
+    def on_cbxBuscarTags_clicked(self, valor):
         # refleja el cambio en el CFG
         self.__Config.searchPresitionTags = int(valor)
-            
-    @QtCore.pyqtSlot(bool)   
+
+    @QtCore.pyqtSlot(bool)
     def on_cbxMaximizado_clicked(self, valor):
-        
+
         # refleja el cambio en el CFG
         self.__Config.windowStateStartup = int(valor)
-        
-    @QtCore.pyqtSlot(bool)   
+
+    @QtCore.pyqtSlot(bool)
     def on_cbxExpandirArbol_clicked(self, valor):
         # refleja el cambio en el CFG
         self.__Config.expandTree = int(valor)
-        
+
     def on_eNombreUsuario_editingFinished(self):
         # obtiene el valor actual
         nombre = unicode(self.eNombreUsuario.text(), 'utf-8')
         # lo refleja en el CFG
         self.__Config.userUploader = nombre
-    
-    #~ 
+
+    #~
     #~ TAB: BASES DE DATOS
-    #~ 
-    
-    
+    #~
+
+
 ########################
 ## Metodos Auxiliares ##
 ########################
-            
+
     def __centerOnScreen(self):
         u"""Centers the window on the screen."""
         resolution = QtGui.QDesktopWidget().screenGeometry()
         self.move((resolution.width() / 2) - (self.frameSize().width() / 2),
                   (resolution.height() / 2) - (self.frameSize().height() / 2))
-        
+
     def __toUnicode(self,myQstring):
         u""" Convierte a UTF8 el objeto QString recibido. """
         #~ print myQstring
         return unicode(myQstring.toUtf8(),'utf-8')
 
     def __cargarValoresEnGUI(self) :
-        ''' Llama a los metodos que se encargan de reflejar los valores 
+        ''' Llama a los metodos que se encargan de reflejar los valores
         actuales  de las configuraciones en la interfaz. '''
-        
+
         # Tab: General
-        
+
         self.__chequearOpcionesGenerales()
         self.__cargarNombreUsuario()
-        
+
         # Tab: Bases de datos
-        
+
         self.__setPathDefaultBDsInGUI()
         self.__cargarBDsDesdeDatabases()
         self.__cargarBDsDesdeCFG()
         self.__cargarComboBDsDefault()
-        
-        #couchdb
-        self.__cargarBDsCouch()
-    #~ 
+
+    #~
     #~ TAB: GENERALES
-    #~ 
-    
+    #~
+
     def __cargarNombreUsuario(self):
-        ''' Recupera el valor para este campo desde el CFG y 
+        ''' Recupera el valor para este campo desde el CFG y
         lo muestra en la interfaz. '''
         self.eNombreUsuario.setText(
                 self.__Config.userUploader)
-    
+
     def __chequearOpcionesGenerales(self):
-        
+
         self.cbxBuscarTags.setChecked(
             int(self.__Config.searchPresitionTags))
-            
+
         self.cbxMaximizado.setChecked(
             int(self.__Config.windowStateStartup))
-            
+
         self.cbxExpandirArbol.setChecked(
             int(self.__Config.expandTree))
-    #~ 
+    #~
     #~ TAB: CATALOGOS
-    #~ 
+    #~
     def __agregarBDDefault(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, u'Agregar catálogo',filter = '*.db')
         if filename:
             filename = unicode(filename, 'utf-8') # persiste la nueva refrencia en el cfg
-            
+
             if self.__DBU.validarBD(filename):
                 self.__DBU.agregarBDADefault(filename)
                 self.__cargarBDsDesdeDatabases()
-                
+
                 # refresca el combo de la interfaz principal
                 self.__Padre.refreshBdsInComboMainWindow()
             else:
                 QtGui.QMessageBox.critical(self,"Agregar catalogo",
                 "Este archivo no es un catalogo valido de Fragmentos.")
-        
+
     def __agregarBDReferencia(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, u'Agregar referencia a catálogo',filter = '*.db')
         if filename:
             filename = unicode(filename, 'utf-8') # persiste la nueva refrencia en el cfg
-            
+
             if self.__DBU.validarBD(filename):
                 self.__agregarBDReferenciaInCFG(filename) # refresca la gui
-                self.__cargarBDsDesdeCFG()  
-                
+                self.__cargarBDsDesdeCFG()
+
                 # refresca el combo de la interfaz principal
                 self.__Padre.refreshBdsInComboMainWindow()
             else:
                 QtGui.QMessageBox.critical(self,u"Agregar referencia a catálogo",
                 u"Este archivo no es un catálogo válido de Fragmentos.")
-            
+
     def __agregarBDReferenciaInCFG(self, pathCatalogo):
         ''' Agrega el nuevo catalogo seleccionado a en el archivo CFG'''
 
@@ -228,85 +215,46 @@ class Opciones(QtGui.QMainWindow):
         # vuelve a juntar los path en un solo string
         # y lo guarda nuevamente en el cfg
         self.__Config.referencesToBds = ','.join(referencias)
-                
+
     def __cargarBDsDesdeDatabases(self):
-        ''' Carga en la lista las bds existentes en el directorio 
+        ''' Carga en la lista las bds existentes en el directorio
         establecido por defecto. '''
-        
+
         self.lstBdsDefault.clear()
         bds = self.__DBU.getBDsNamesDatabasesDir()
-        if bds : 
+        if bds :
             map(self.lstBdsDefault.addItem,bds)
-        
+
     def __cargarBDsDesdeCFG(self):
         ''' '''
         self.lstBdsReferences.clear()
         bds = self.__Config.getDBsInCFGReferences()
-        if bds : 
+        if bds :
             map(self.lstBdsReferences.addItem,bds)
-                
+
     def __cargarComboBDsDefault(self):
         ''' '''
         databases_dir = self.__DBU.getBDsNamesDatabasesDir()
         cfg_file = self.__Config.getDBsNamesCFGReferences()
         nombres = databases_dir + cfg_file
         map(self.cbBDsCargaInicio.addItem,nombres)
-        
+
     def __quitarBDDefault(self):
         ''' '''
         if self.lstBdsDefault.currentRow() != -1 :
             pass
-    
+
     def __quitarBDReferencia(self):
         ''' '''
         if self.lstBdsReferences.currentRow() != -1 :
-            ruta_a_quitar = unicode(self.lstBdsReferences.currentItem().text().toUtf8(),'utf-8')            
+            ruta_a_quitar = unicode(self.lstBdsReferences.currentItem().text().toUtf8(),'utf-8')
             self.__Config.quitarDBInCFGReference( ruta_a_quitar )
             self.__cargarBDsDesdeCFG()
             # refresca el combo de la interfaz principal
             self.__Padre.refreshBdsInComboMainWindow()
-            
+
     def __setPathDefaultBDsInGUI(self):
-        ''' Obtiene la ruta del directorio por defecto y 
+        ''' Obtiene la ruta del directorio por defecto y
         lo muestra en el campo correspondiente en la interfaz. '''
         self.eDefaultDir.setText(
                         self.__PT.getPathDatabasesDir())
-                    
-#~ def main():
-    #~ app = QtGui.QApplication(sys.argv)
-    #~ m = Opciones()
-    #~ m.show()
-    #~ sys.exit(app.exec_())
-#~ 
-#~ 
-#~ if __name__ == "__main__":
-    #~ main()
-
-    def __agregarBDCouch(self, new_url, new_name):
-        # set the url
-        urls = self.__Config.couch_urls
-        urls = urls.split(',')
-        urls.append(new_url)
-        self.__Config.couch_urls = ','.join(urls)
-        
-        # set the name
-        names = self.__Config.couch_names
-        names = names.split(',')
-        names.append(new_name)
-        self.__Config.couch_names = ','.join(names)
-        self.__cargarBDsCouch()
-        
-    def __quitarBDCouch(self):
-        pass
-    
-    def __cargarBDsCouch(self):
-        self.lstBdsCouch.clear()
-        urls = self.__Config.getURLsCouch()
-        names = self.__Config.getNamesCouch()
-        if urls and names :
-            for url, name in zip(urls, names):
-                if url != '' and name != '' :
-                    self.lstBdsCouch.addItem(
-                        "%s - %s" % (url, name))
-            
-        
