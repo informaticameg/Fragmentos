@@ -22,34 +22,34 @@ import os
 from pathtools import PathTools
 from configurations import Configurations
 
-class Validator :
+
+class Validator:
     ''' Clase que valida el estado de distintas partes del programa. '''
 
-    def __init__(self) :
+    def __init__(self):
         self.pt = PathTools()
         self.config = Configurations()
 
-
-    def checkFolders (self) :
+    def checkFolders(self):
         """ Verifica que existan los directorios de la aplicación """
 
         # obtiene la ruta del directorio /databases
         databases_dir = self.pt.getPathDatabasesDir()
 
         # si no existe el directorio, lo crea
-        if not os.path.exists(databases_dir) :
-            print 'El directorio /databases no existia, ha sido creado nuevamente.'
+        if not os.path.exists(databases_dir):
+            print 'El directorio /catalogs no existia, ha sido creado nuevamente.'
             os.mkdir(databases_dir)
 
         # obtiene la ruta del directorio /data
         data_dir = self.pt.getPathDataDir()
 
         # si no existe el directorio, lo crea
-        if not os.path.exists(data_dir) :
+        if not os.path.exists(data_dir):
             print 'El directorio /data no existia, ha sido creado nuevamente.'
             os.mkdir(data_dir)
 
-    def checkExistCfg (self) :
+    def checkExistCfg(self):
         """ Verifica la existencia del archivo de configuracion """
 
         existe = False
@@ -60,11 +60,11 @@ class Validator :
             existe = True
         return existe
 
-    def checkIntegrityCfg (self) :
+    def checkIntegrityCfg(self):
         """ Verifica la integridad del archivo de configuracion """
         pass
 
-    def check (self) :
+    def check(self):
 
         # verifica la existencia de los directorios
         self.checkFolders()
@@ -73,28 +73,35 @@ class Validator :
         self.checkExistCfg()
 
         # verifica la integridad del archivo de configuracion
-        #self.checkIntegrityCfg()
+        # self.checkIntegrityCfg()
 
 
 class ValidarShorcuts:
     """"""
+
     def __init__(self):
-        import gconf #@UnresolvedImport
+        import gconf  # @UnresolvedImport
         self.__search_key = 'F7'
         self.__add_key = 'F9'
         self.__client = gconf.client_get_default()
         self.__validar_keys()
 
     def __check_search_key(self):
-        self.__set_key('/desktop/gnome/keybindings/fragmentos-search/binding',self.__search_key)
-        self.__set_key('/desktop/gnome/keybindings/fragmentos-search/action','python ' + self.__validar_file() + ' -search')
-        self.__set_key('/desktop/gnome/keybindings/fragmentos-search/name','search into fragmentos')
+        self.__set_key(
+            '/desktop/gnome/keybindings/fragmentos-search/binding', self.__search_key)
+        self.__set_key('/desktop/gnome/keybindings/fragmentos-search/action',
+                       'python ' + self.__validar_file() + ' -search')
+        self.__set_key(
+            '/desktop/gnome/keybindings/fragmentos-search/name', 'search into fragmentos')
         pass
 
     def __check_add_key(self):
-        self.__set_key('/desktop/gnome/keybindings/fragmentos-add/binding',self.__add_key)
-        self.__set_key('/desktop/gnome/keybindings/fragmentos-add/action','python ' + self.__validar_file() +' -add')
-        self.__set_key('/desktop/gnome/keybindings/fragmentos-add/name','add to fragmentos')
+        self.__set_key(
+            '/desktop/gnome/keybindings/fragmentos-add/binding', self.__add_key)
+        self.__set_key('/desktop/gnome/keybindings/fragmentos-add/action',
+                       'python ' + self.__validar_file() + ' -add')
+        self.__set_key(
+            '/desktop/gnome/keybindings/fragmentos-add/name', 'add to fragmentos')
         pass
 
     def __validar_keys(self):
@@ -103,30 +110,30 @@ class ValidarShorcuts:
         pass
 
     def __validar_file(self):
-        p= PathTools()
-        return p.getPathProgramFolder()+'cliente_dbus.py'
+        p = PathTools()
+        return p.getPathProgramFolder() + 'cliente_dbus.py'
 
-
-    def __set_key(self,key,value):
-        import gconf #@UnresolvedImport
+    def __set_key(self, key, value):
+        import gconf  # @UnresolvedImport
         import types
         casts = {types.BooleanType: gconf.Client.set_bool,
-                 types.IntType:     gconf.Client.set_int,
-                 types.FloatType:   gconf.Client.set_float,
-                 types.StringType:  gconf.Client.set_string}
-        casts[type(value)](self.__client,key, value)
+                 types.IntType: gconf.Client.set_int,
+                 types.FloatType: gconf.Client.set_float,
+                 types.StringType: gconf.Client.set_string}
+        casts[type(value)](self.__client, key, value)
 
-    def __get_key(self,key):
-        import gconf #@UnresolvedImport
+    def __get_key(self, key):
+        import gconf  # @UnresolvedImport
         try:
-            casts = {gconf.VALUE_BOOL:   gconf.Value.get_bool,
-                     gconf.VALUE_INT:    gconf.Value.get_int,
-                     gconf.VALUE_FLOAT:  gconf.Value.get_float,
+            casts = {gconf.VALUE_BOOL: gconf.Value.get_bool,
+                     gconf.VALUE_INT: gconf.Value.get_int,
+                     gconf.VALUE_FLOAT: gconf.Value.get_float,
                      gconf.VALUE_STRING: gconf.Value.get_string}
             value = self.__client.get(key)
             return casts[value.type](value)
         except AttributeError:
             raise ValueError
+
 
 def main():
 
@@ -136,4 +143,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

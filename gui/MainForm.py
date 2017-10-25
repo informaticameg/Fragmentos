@@ -28,11 +28,12 @@ from QTTips.Scintilla import Scintilla
 from QTTips.TreeView import TreeView
 from QTTips.QcolorTextEdit import QcolorTextEdit
 from gui.comoEmpezar import ComoEmpezar
+from pathtools import PathTools
 
 
 class Main(QtGui.QMainWindow):
     """La ventana principal de la aplicación."""
-    
+
     def __init__(self,parent):
         """ Ventana Principal debe recibir una instancia de GUI """
         FILENAME = 'uis/MainForm.ui'
@@ -42,6 +43,7 @@ class Main(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon(':/toolbar/logo.png'))
         # centra la ventana en la pantalla
         self.__centerOnScreen()
+        self.__PT = PathTools()
 
         # conectar salir
         self.connect(self, QtCore.SIGNAL('destroyed()'), self.destroyed)
@@ -54,7 +56,7 @@ class Main(QtGui.QMainWindow):
         self.mytreeview.widget.setContextMenuPolicy( QtCore.Qt.CustomContextMenu )
         self.connect(self.mytreeview.widget, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),
                       self.on_treecontext_menu)
-        
+
         # agrega el Widget de codigo
         self.widgetcomoEmpezar = ComoEmpezar()
         self.widgetcodigo = Scintilla()
@@ -77,7 +79,7 @@ class Main(QtGui.QMainWindow):
 
         # establece el trayicon
         self.Padre.setTrayIcon(self)
-        
+
         #self.refreshTree()
 
         # carga las bds en el combo
@@ -93,8 +95,7 @@ class Main(QtGui.QMainWindow):
         self.btSptAnterior.setEnabled(False)
         self.btSptSiguiente.setEnabled(False)
         self.btMas.setVisible(False)
-        self.cbBD.setCurrentIndex(-1)
-         
+
 ######################
 ## Metodos de clase ##
 ######################
@@ -102,7 +103,7 @@ class Main(QtGui.QMainWindow):
     def __addKeytoBusqueda(self,cadena):
         """Soporte de atajos generico.Manipula los atajos
         en la barra de busqueda"""
-        
+
         ubicacion = self.__convertir_a_unicode(self.eBusqueda.text)
         self.eBusqueda.setFocus()
         if ubicacion.find(cadena) == -1:
@@ -113,24 +114,24 @@ class Main(QtGui.QMainWindow):
             self.eBusqueda.setCursorPosition(self.__convertir_a_unicode(self.eBusqueda.text).find(cadena)+2)
         else:
             self.eBusqueda.setCursorPosition(ubicacion.find(cadena)+2)
-    
-    def __agregarSnippet(self):        
+
+    def __agregarSnippet(self):
         if self.SM.getDB():
             self.Padre.showAgregarSnippet()
         else:
             QtGui.QMessageBox.warning(self, "Fragmentos",
-            "No se ha seleccionado una base de datos donde guardar snippets.")       
-    
+            "No se ha seleccionado una base de datos donde guardar snippets.")
+
     def __convertir_a_unicode(self,myQstring):
         return str(myQstring.toUtf8())
 
-    def __cargarBDSeleccionada(self,indice):
+    def __cargarBDSeleccionada(self, indice):
         """ Al seleccionar otra base de datos desde el combo,
         reflejar los cambios en la interfaz. """
-        
+
         #obtiene la ruta de la bd segun el indice
         rutaNueva = self.SM.getPathDB(indice)
-         
+
         if rutaNueva.find('|') == -1 :
             self.SM.usecouch = False
             argumentos = rutaNueva,
@@ -138,27 +139,32 @@ class Main(QtGui.QMainWindow):
             # couchdb
             self.SM.usecouch = True
             argumentos = rutaNueva.split('|')
-        
+
         # vuelva a crear la instancia de bd con la nueva ruta
         self.Padre.setSM(*argumentos)
-        
+
         # carga los snippets en el arbol
         self.refreshTree()
         self.historialSnippets = [[],0]
-                
+
     def loadBDsInCombo(self):
-        ''' '''         
+        ''' '''
         #if self.SM.getDB() :
         # recarga la lista de paths a bds
         self.SM.loadAllPathDBs()
-        
-        # limpia las items insertados 
-        self.cbBD.clear()  
-         
+
+        # limpia las items insertados
+        self.cbBD.clear()
+
         #  obtiene los nombres de las bds
         bds = self.SM.getBDNames()
-        if bds : map(self.cbBD.addItem, bds)
-            
+        if bds :
+            map(self.cbBD.addItem, bds)
+
+        self.cbBD.setCurrentIndex(-1)
+        if bds :
+            self.cbBD.setCurrentIndex(0)
+
     def __centerOnScreen (self):
         """Centers the window on the screen."""
         resolution = QtGui.QDesktopWidget().screenGeometry()
@@ -167,9 +173,9 @@ class Main(QtGui.QMainWindow):
 
     def __createMenu(self):
         """Crea el main menu"""
-        
+
         menu = QtGui.QMenu(self.btMenu)
-        
+
         menusnippet = menu.addMenu("Snippet")
         menusnippet.addAction("Agregar",self.__agregarSnippet,QtGui.QKeySequence("F9"))
         menusnippet.addAction("Editar", self.__modificarSnippet,QtGui.QKeySequence("Ctrl+M"))
@@ -177,7 +183,7 @@ class Main(QtGui.QMainWindow):
 
         menudatabase= menu.addMenu(u"Catálogo")
         menudatabase.addAction("Nuevo... ", self.__nuevaBDFragmentos)
-                
+
         menubusqueda = menu.addMenu("Busqueda")
         menubusqueda.addAction("'t=' Por Titulo", lambda : self.__cargarCriterioBusquedaEnBarra('t'),QtGui.QKeySequence("Alt+T"))
         menubusqueda.addAction("'g=' Por Tags", lambda : self.__cargarCriterioBusquedaEnBarra('g'),QtGui.QKeySequence("Alt+G"))
@@ -185,48 +191,48 @@ class Main(QtGui.QMainWindow):
         menubusqueda.addAction("'n=' Por Fecha creacion", lambda : self.__cargarCriterioBusquedaEnBarra('n'),QtGui.QKeySequence("Alt+N"))
         menubusqueda.addAction("'m=' Por Fecha modificacion", lambda : self.__cargarCriterioBusquedaEnBarra('m'),QtGui.QKeySequence("Alt+M"))
         menubusqueda.addAction("'a=' Por Autor", lambda : self.__cargarCriterioBusquedaEnBarra('a'),QtGui.QKeySequence("Alt+A"))
-        
+
         menu.addSeparator()
-        
-        menucompartir = menu.addMenu("Compartir")
-        menucompartir.addAction("Enviar a Pastebin", self.__enviarAPastebin)
-        menucompartir.addAction(u"¿Que es Pastebin?", self.__helpPastebin)
-        
+
+        # menucompartir = menu.addMenu("Compartir")
+        # menucompartir.addAction("Enviar a Pastebin", self.__enviarAPastebin)
+        # menucompartir.addAction(u"¿Que es Pastebin?", self.__helpPastebin)
+
         menu.addSeparator()
-        
+
         menu.addAction("Opciones", self.__showOptions, QtGui.QKeySequence("Ctrl+O"))
         menu.addAction("Ayuda", self.__mostrarAyuda)
-        
+
         menu.addSeparator()
-        
+
         menu.addAction("Acerca de...", self.__mostrarAcercaDe)
-        
+
         menu.addSeparator()
-        
+
         menu.addAction("Salir", self.__destroyed, QtGui.QKeySequence("Ctrl+Q"))
 
 
         self.btMenu.setMenu(menu)
-    
+
     def __cargarCriterioBusquedaEnBarra(self, criterio):
-        valor_a_cargar = unicode(self.eBusqueda.text().toUtf8(),'utf-8') 
+        valor_a_cargar = unicode(self.eBusqueda.text().toUtf8(),'utf-8')
         index = valor_a_cargar.find(criterio + "=")
         if index == -1 :
             valor_a_cargar += "," + criterio + "=" if len(valor_a_cargar) > 0 else criterio + "="
             self.eBusqueda.setText( valor_a_cargar )
         else:
             self.eBusqueda.setCursorPosition( index + 2 )
-    
+
     def __destroyed(self):
         ''' Hace volar la ventana. '''
         #TODO: hacer que cierre todas las ventanas
         sys.exit(0)
-    
+
     def __eliminarSnippet(self):
         """Ejecuta las instrucciones para eliminar el snippet actual."""
-        
+
         actual = self.SM.getSnippetActual()
-        
+
         if actual is None:
             QtGui.QMessageBox.warning(self, "Eliminar snippet",
         "Debes seleccionar un snippet para eliminarlo.")
@@ -247,14 +253,14 @@ class Main(QtGui.QMainWindow):
 
     def __loadAppShortcuts(self):
         u""" Load shortcuts used in the application. """
-                
+
         QtGui.QShortcut(QtGui.QKeySequence("F11"), self, self.__toogleFullScreen)
         QtGui.QShortcut(QtGui.QKeySequence("Ctrl+L"), self, self.eBusqueda.setFocus)
         # atajo : cerrar/salir
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Escape), self, self.close)
-            
+
     def __cleanFields(self) :
-        
+
         self.widgetcodigo.clearCode()
         self.txtDescripcion.setText("")
         self.btPonerComoFavorito.setChecked(False)
@@ -264,7 +270,7 @@ class Main(QtGui.QMainWindow):
 
     def __modificarSnippet(self):
         """ Ejecuta las instrucciones para modificar el snippet actual. """
-        
+
         actual = self.SM.getSnippetActual()
         if actual is None:
             QtGui.QMessageBox.warning(self, "Modificar snippet",
@@ -276,13 +282,13 @@ class Main(QtGui.QMainWindow):
     def __showSnippet(self, lenguaje, titulo):
         self.widgetcomoEmpezar.setVisible(False)
         self.widgetcodigo.getEditor().setVisible(True)
-        
+
         # obtiene el snippet segun titulo y lenguaje
         snippet = self.SM.getSnippet(lenguaje,titulo)
 
         # muestra el codigo en el visor de codigo
         self.widgetcodigo.setFullCode(snippet.codigo,snippet.lenguaje)
-        
+
         # carga en los campos los datos del snippet
         self.leTags.setText(snippet.tags)
         self.leTitulo.setText(snippet.titulo)
@@ -296,24 +302,24 @@ class Main(QtGui.QMainWindow):
         else:
             #oculta el label
             self.lbFechaModificacion.setVisible(False)
-            
+
         # si es favorito, cambia el estado del boton
         if snippet.favorito == "0":
             self.btPonerComoFavorito.setChecked(False)
         elif snippet.favorito == "1":
             self.btPonerComoFavorito.setChecked(True)
-        
+
     def __setAsFavorite(self):
-        
+
         #obtiene la instancia actual del snippet
         snippetActual = self.SM.getSnippetActual()
-        
+
         #establece el nuevo valor
         if not snippetActual is None:
             #~ print str(int(self.btPonerComoFavorito.isChecked()))
             # refleja este cambio en los datos del snippet
             snippetActual.favorito = str(int(self.btPonerComoFavorito.isChecked()))
-            
+
             # establece el nuevo estado del snippet
             self.SM.setSnippetActual(snippetActual)
             self.lbEstado.setText("Establecido como favorito.")
@@ -327,8 +333,8 @@ class Main(QtGui.QMainWindow):
         if tipo == 'add':
             historial = historial[:indice+1]
             historial.append(tLengTit)
-            indice = len(historial)-1    
-        
+            indice = len(historial)-1
+
         elif tipo == 'forw':
             if (len(historial)-1) > indice:
                 lenguaje,titulo = historial[indice+1]
@@ -343,7 +349,7 @@ class Main(QtGui.QMainWindow):
         else:
             print "opcion incorrecta"
         self.historialSnippets = [historial,indice]
-        
+
     def __enviarAPastebin(self):
         actual = self.SM.getSnippetActual()
         if actual is None:
@@ -359,9 +365,9 @@ class Main(QtGui.QMainWindow):
             # copia el link al portapapeles
             self.Padre.clipboard.setText(url)
             mensaje = '''Snippet enviado correctamente.
-            
+
             Puede encontrar su snippet en la siguiente direccion:\n
-            %s 
+            %s
             \nLink disponible en el portapapeles.''' % url
             QtGui.QMessageBox.information(self, "Enviar Snippet a Pastebin",
             mensaje)
@@ -371,9 +377,9 @@ class Main(QtGui.QMainWindow):
         refresca el arbol cargando nuevamente los snippets. """
         self.SM = self.Padre.SM
         lengs_and_titles = self.SM.getLengsAndTitles()
-        
+
         self.mytreeview.insertarEnArbol(lengs_and_titles)
-        
+
         self.lbEstado.setText(
             str(self.SM.getSnippetsCount()) + ' snippet(s) cargados.')
 
@@ -384,49 +390,52 @@ class Main(QtGui.QMainWindow):
         else:
             self.showNormal()
         self.fullScreen = not self.fullScreen
-    
+
     ################################################################
     #   Metodos usados en el menu de la aplicacion
-    ###############################################################        
-    
+    ###############################################################
+
     def __helpPastebin(self):
         ''' '''
         mensaje = u'''Pastebin es una aplicación web que permite a sus usuarios subir pequeños textos, generalmente ejemplos de código fuente, para que estén visibles al público en general.
-        
+
         Enlace: http://pastebin.com
         Fuente: http://es.wikipedia.org/wiki/Pastebin'''
-                
+
         QtGui.QMessageBox.information(self, u"¿Que es Pastebin?",mensaje)
-        
+
     def __showOptions(self):
         ''' '''
         self.Padre.showOpciones()
-        
-    def __mostrarAyuda(self) : 
+
+    def __mostrarAyuda(self) :
         ''' '''
 #        QtGui.QMessageBox.information(self, "Ayuda",
 #                "Opcion todavia no disponible en esta version.")
         self.widgetcomoEmpezar.setVisible(True)
         self.widgetcodigo.getEditor().setVisible(False)
-    
+
     def __mostrarAcercaDe(self):
         ''' '''
         self.Padre.showAcercaDe()
-        
+
     def __nuevaBDFragmentos(self) :
-        ''' Abre un dialogo de archivos, para guardar el 
+        ''' Abre un dialogo de archivos, para guardar el
         archivo de la bd creada.'''
-        
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Nuevo catalogo de Fragmentos',filter = '*.db')
+
+        catalogs_dir = self.__PT.getPathDatabasesDir()
+        filename = QtGui.QFileDialog.getSaveFileName(
+            self, 'Nuevo catalogo de Fragmentos', directory=catalogs_dir, filter='*.db')
         if filename:
-            filename = self.__convertir_a_unicode(filename)                            
+            filename = self.__convertir_a_unicode(filename)
             if filename[-3:] != '.db' :
-                filename += filename + '.db'
+                filename = filename + '.db'
             # llamamos al metodo que crea la bd
             estado = self.Padre.fragmentos.BDU.newDataBase(filename)
             if estado :
                 QtGui.QMessageBox.information(self, u"Nuevo catálogo",
                 u"Catálogo creado con exito en : \n\n" + filename)
+                self.loadBDsInCombo()
             else:
                 QtGui.QMessageBox.critical(self, u"Nuevo catálogo",
                 u"Se ha producido un error al intentar crear el catálogo.")
@@ -446,11 +455,11 @@ class Main(QtGui.QMainWindow):
     @QtCore.pyqtSlot()
     def on_btCopiarAlPortapapeles_clicked(self):
         self.Padre.clipboard.setText(self.widgetcodigo.getCode())
-        
+
     @QtCore.pyqtSlot()
     def on_btBuscarEnFavoritos_clicked(self):
         ''' carga en el arbol los snippets favoritos'''
-        
+
         if self.btBuscarEnFavoritos.isChecked():
             #obtiene solo los favoritos
             datos = self.SM.getLengsAndTitles("s=1",True)
@@ -477,22 +486,22 @@ class Main(QtGui.QMainWindow):
         self.btSptAnterior.setEnabled(True)
         if (len(self.historialSnippets[0])-1)==self.historialSnippets[1]:#si no hay cosas para adelantar
             self.btSptSiguiente.setEnabled(False)
-        
+
     ###############
     ### ENTRYES ###
     ###############
-    
+
     def loadSearchResult(self):
         def cambiarColorBarra(barra, rojo = False):
             style = '''
-            QLineEdit { border: 2px groove gray; border-radius: 8px; padding: 1px 2px; 
+            QLineEdit { border: 2px groove gray; border-radius: 8px; padding: 1px 2px;
             border-top-left-radius: 8px ; border-top-right-radius: 0px solid white;
             border-bottom-right-radius: 0px ; border-bottom-left-radius: 8px; /**/}'''
             barra.setStyleSheet( style.replace('/**/','background-color: #FF6666;')) if rojo else barra.setStyleSheet( style )
         datos = []
         cadena = str(self.eBusqueda.text().toUtf8())
         datos = self.SM.getLengsAndTitles(
-            cadena, 
+            cadena,
             self.btBuscarEnFavoritos.isChecked()
         )
         if datos :
@@ -503,7 +512,7 @@ class Main(QtGui.QMainWindow):
             # el arbol se expandira al realizar una busqueda
             if self.Padre.fragmentos.ConfigsApp.expandTree == '1' :
                 self.tvLenguajes.expandAll()
-            
+
         else:
             cambiarColorBarra(self.eBusqueda, True)
             self.mytreeview.model.clear()
@@ -514,7 +523,7 @@ class Main(QtGui.QMainWindow):
         if cadena == "":
             self.lbEstado.setText(
                 str(self.SM.getSnippetsCount()) + ' snippet(s) cargados...')
-            
+
     def on_eBusqueda_textChanged(self,cadena):
         QtCore.QTimer().singleShot(300, self.loadSearchResult)
 
@@ -523,7 +532,7 @@ class Main(QtGui.QMainWindow):
         self.eBusqueda.setText(
             self.__convertir_a_unicode(cadena).lower())
         self.eBusqueda.setCursorPosition( posicion_cursor )
-        
+
     ################
     ### TREEVIEW ###
     ################
@@ -532,7 +541,7 @@ class Main(QtGui.QMainWindow):
         menu = QtGui.QMenu()
         menu.addAction("Editar", self.__modificarSnippet,QtGui.QKeySequence("Ctrl+M"))
         menu.exec_( self.mytreeview.widget.mapToGlobal(point) )
-    
+
     def on_tvLenguajes_selectedItem(self,indice,b):
         if indice.parent().row() != -1:
             lenguaje =  unicode(
@@ -546,35 +555,35 @@ class Main(QtGui.QMainWindow):
             self.btSptSiguiente.setEnabled(False)
             self.__historial('add', (lenguaje,titulo))
             self.__showSnippet(lenguaje,titulo)
-            
+
     ################
     ### COMBOBOX ###
     ################
-    
+
     @QtCore.pyqtSlot(int)
     def on_cbBD_currentIndexChanged(self,index):
         if self.PasePorAca:
             self.__cargarBDSeleccionada(self.cbBD.currentIndex())
         else:
             self.PasePorAca = True
-            
+
     def closeEvent(self, event):
         event.ignore()
         self.hide()
-        
+
 class TreeViewThread(QtCore.QThread):
     ''' Este hilo se encarga de cargar los snippets en el arbol de la interfaz.'''
-    
+
     def __init__(self, parent, lengs_and_titles):
         QtCore.QThread.__init__(self, parent)
         self.Padre = parent
-        # lengs_and_titles, viene desde MainForm y es el resultado 
+        # lengs_and_titles, viene desde MainForm y es el resultado
         # de SM.getLengsAndTitles()
         self.datos = lengs_and_titles
-        
-    def run(self):        
+
+    def run(self):
         self.Padre.mytreeview.insertarEnArbol(self.datos)
-        
+
 def main():
     pass
 

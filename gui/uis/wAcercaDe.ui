@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>519</width>
-    <height>308</height>
+    <width>635</width>
+    <height>335</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -80,7 +80,7 @@
         <item>
          <widget class="QLabel" name="lbVersion">
           <property name="text">
-           <string>Version 0.8.3</string>
+           <string>Version 0.8.4</string>
           </property>
          </widget>
         </item>
@@ -105,28 +105,44 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QLabel" name="lbVersion_3">
           <property name="text">
-           <string>Copyrigth(C) 2011</string>
+           <string>Copyrigth(C) 2011 Informática MEG</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="lbVersion_4">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <italic>true</italic>
+           </font>
+          </property>
           <property name="text">
-           <string>Informática MEG</string>
+           <string>Desarrolladores:</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="lbVersion_5">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
-           <string>contacto@informaticameg.com</string>
+           <string>Fernandez, Emiliano (emilianohfernandez@gmail.com)</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_2">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
-           <string>www.informaticameg.com</string>
+           <string>Ferreyra, Jonathan (jalejandroferreyra@gmail.com)</string>
           </property>
          </widget>
         </item>

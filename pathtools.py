@@ -28,12 +28,10 @@ class PathTools:
     ''' Clase para el manejo de rutas/paths y ubicacion de carpetas. '''
     def __init__(self):
         pass
-        
+
     def getPathDatabasesDir(self):
         ''' Obtiene la ruta del directorio databases segun el so. '''
-        program_folder = self.convertPath(os.path.abspath(os.path.dirname(argv[0])) + "/")
-        bd_folder = self.convertPath(os.path.dirname(program_folder[:-1])+'/'+Members.DATABASES_DIR +'/')
-        return bd_folder
+        return  self.convertPath(os.path.abspath(os.path.dirname(argv[0])) + "/" + Members.DATABASES_DIR)
 
     def getPathProgramFolder(self):
         ''' Obtiene la ruta de la carpeta del programa. '''
@@ -45,13 +43,13 @@ class PathTools:
         return self.convertPath(
                             self.getPathProgramFolder() + \
                             Members.CONFIG_DIR + '/' + Members.CFG_FILE)
-    
+
     def getPathDataDir(self):
         ''' '''
         return self.convertPath(
                         self.getPathProgramFolder() + \
                                 Members.CONFIG_DIR )
-                                
+
     def convertPath(self,path):
         '''Convierte el path a el específico de la plataforma (separador)'''
         if os.name == 'posix':

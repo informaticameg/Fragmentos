@@ -26,14 +26,14 @@ from database import sqlite
 
 class DBUtils:
     ''' Clase para el manejo de utilidades de base de datos. '''
-    
+
     def __init__(self):
         self.__PT = PathTools()
         self.__new_campos = ['title','language','contens','tags','description',
         'creation','starred','reference','modified','uploader']
         self.__old_campos = ['title','language','contens','tags',
             'comments','date','starred','reference']
-        
+
 ###############
 # METODOS GET #
 ###############
@@ -42,24 +42,24 @@ class DBUtils:
         ''' Copia el archivo recibido a la carpeta establecida por defecto
         para los catalogos del programa.'''
         import shutil
-        
+
         shutil.copy(pathBD, self.__PT.getPathDatabasesDir())
-        
+
     def actualizarEstructuraBD(self, pathBD):
         ''' Reconfigura la estructura de la bd antigua a la version actual.'''
-        
+
         import os
-        
+
         bd = sqlite(pathBD)
-        
+
         # obtiene todos los snippets de la bd
         todo = bd.getDatosTabla('snippet','title,language,contens,tags,comments,date,starred,reference')
-                
-        # elimina el actual archivo de la bd        
+
+        # elimina el actual archivo de la bd
         os.remove(pathBD)
-        # creamos una nueva bd 
+        # creamos una nueva bd
         self.newDataBase(pathBD)
-        
+
         bd = sqlite(pathBD)
 
         orden_campos = {
@@ -74,12 +74,12 @@ class DBUtils:
         }
         # agrega nuevamente los snippets a la bd
         bd.realizarAltas('snippet', orden_campos, todo)
-        
+
         print 'Estructura de la bd actualizada.'
-        
+
     def getBDsInDatabasesDir(self):
         ''' Obtiene los path's de las bases de datos ubicadas en el directorio databases.'''
-        
+
         # obtiene una lista con los archivos que estan en el directorio databases
         archivos_dbs = os.listdir(self.__PT.getPathDatabasesDir())
         bds = []
@@ -87,13 +87,13 @@ class DBUtils:
         for archivo in archivos_dbs:
             # si es un archivo que es alguna de las extenciones permitidas
             if os.path.splitext(archivo)[1] == Members.DB_EXTENCIONS:
-                bds.append(self.__PT.getPathDatabasesDir()+archivo)
+                bds.append(self.__PT.convertPath(self.__PT.getPathDatabasesDir() + '/' + archivo))
         return bds
 
     def getBDsNamesDatabasesDir(self):
         ''' Obtiene una lista con los nombres de los archivos bds,
         del directorio databases.  '''
-        
+
         # obtienes los paths de las bds en /databases
         bd_rutas = self.getBDsInDatabasesDir()
         bd_names = []
@@ -119,19 +119,20 @@ class DBUtils:
             #print row
             columnas.append(row[1])
         return columnas
-    
+
     #~ def isBDActual(self, pathBD):
         #~ ''' Devuelve TRUE en caso de que sea una base de datos
         #~ Fragmentos con la estructura 'title','language','contens','tags',
         #~ 'description','creation','starred','reference','modified','uploader'.'''
-        #~ 
+        #~
         #~ # pregunta si es la bd con estructura nueva
         #~ if self.validarBD(pathBD) :
             #~ return True
         #~ elif self.validarBD(pathBD):
             #~ return False
-        
+
     def newDataBase(self, pathNewBD):
+        print pathNewBD
         ''' Crea una nueva base de datos Fragmentos. '''
         # se fija que la bd ya no exista anteriormente
         if not os.path.exists(pathNewBD):
@@ -155,7 +156,7 @@ class DBUtils:
         # crea la conexion para el path asignado
         connection = sqlite3.connect(pathBD)
         cursor = connection.cursor()
-        
+
         # consulta para obtener las tablas de la bd
         try:
             cursor.execute('Select tbl_name From MAIN.[sqlite_master] where type = "table"')
@@ -164,13 +165,13 @@ class DBUtils:
         # recorre las tablas devueltas para verificar que exista la tabla 'snippet'
         for fila in cursor:
             if fila[0] == 'snippet':
-                # recupera las 
+                # recupera las
                 columnas = []
                 cursor.execute('PRAGMA table_info(snippet)')
                 infotable = cursor.fetchall()
                 for row in infotable:
                     columnas.append(row[1])
-                
+
                 if columnas == self.__new_campos :
                     valido = True
                 elif columnas == self.__old_campos :
@@ -181,17 +182,17 @@ class DBUtils:
         return valido
 
 if __name__ == '__main__':
-#~ 
+#~
     hola = DBUtils()
     act = 'ms.db'
     old = 'HolaMundo.db'
     prueba = old
     #~ rutas = hola.getBDsNames()
     #~ print hola.isBDACtual(prueba)
-    #~ 
+    #~
     #~ if not hola.isBDACtual(prueba):
         #~ print 'estoy por actualizar la estructura'
         #~ print hola.validarBD(prueba)
         #~ hola.actualizarEstructuraBD(prueba)
-        
-    #~ hola.actualizarEstructuraBD(prueba)    
+
+    #~ hola.actualizarEstructuraBD(prueba)

@@ -43,12 +43,12 @@ class GUI(DObject):
 
         # en caso de que no haya ninguna bd para
         # iniciar el programa, este metodo devolvera False
-        # y donde se creara una bd temporal 
+        # y donde se creara una bd temporal
         # hasta que este terminado el Wizard
-        
+
         #if not self.SM.getInstanceState() :
         #    self.__createBDTemporary()
-            
+
         app = QtGui.QApplication(sys.argv)
         self.clipboard = app.clipboard()
 
@@ -123,18 +123,17 @@ class GUI(DObject):
         # carga los valores del snippet en los campos
         self.modificar.eTitulo.setText(unSnippet.titulo)
         self.modificar.eDescripcion.setText(unSnippet.descripcion)
-        #TODO:PARCHEEEEEEEEEEEEEEEEEE!!!!!
+
         if unSnippet.uploader != None:
             self.modificar.eAutor.setText(unSnippet.uploader)
         self.modificar.eTags.setText(unSnippet.tags)
-        #~ print 'holaaa: ',type(unSnippet.referencias),unSnippet.referencias
-        #TODO:PARCHEEEEEEEEEEEEEEEEEE!!!!!
+
         if unSnippet.referencias != None:
             self.modificar.eReferencias.setText(unSnippet.referencias)
         self.modificar.widgetcodigo.setCode(unSnippet.codigo)
         self.modificar.cbLenguajes.setCurrentIndex(
             self.modificar.cbLenguajes.findText(unSnippet.lenguaje))
-        self.modificar.chkFavorito.setChecked(bool(unSnippet.favorito))
+        self.modificar.chkFavorito.setChecked(unSnippet.favorito == u'1')
         self.modificar.show()
 
     def showOpciones(self):
@@ -148,22 +147,21 @@ class GUI(DObject):
         from acercade import AcercaDe
         self.acerca = AcercaDe()
         self.acerca.show()
+
     def __createBDTemporary(self):
         ''' '''
-        #~ print '__createBDTemporary'
-        
         pt = PathTools()
         ruta = pt.getPathDatabasesDir() + "MySourceCode.db"
         self.fragmentos.BDU.newDataBase(ruta)
-        
+
         self.setSM(ruta)
-        
+
     def setSM(self, path, db_name = None):
         try:
             self.SM = self.fragmentos.setSM(path, db_name)
         except Exception:
             QtGui.QMessageBox.critical(None ,"","Recurso no disponible: %s - %s" % (path,db_name))
-        
+
 def main():
     GUI()
 
